@@ -7,7 +7,7 @@ import UserListComponent from "../../../components/UserListComponent";
 import ModalImage from "react-modal-image";
 import Modal from "../../../components/modals";
 
-export default function AddUser() {
+export default function EditUser() {
   const router = useRouter();
   const users=[
                   {
@@ -87,7 +87,7 @@ export default function AddUser() {
         <div className="flex flex-col col-span-2 grid-flow-row bg-white h-screen">
           <AdminNav />
         </div>
-        <div className="flex flex-col col-span-10 grid-flow-row bg-gray-200 h-screen">
+        <div className="flex flex-col col-span-10 grid-flow-row bg-gray-200 h-screen overflow-y-auto">
           <div className="max-h-24 pl-8 pr-10 pb-10 pt-5  items-centre w-full bg-gray-300 shadow-lg justify-between">
             <div className="flex flex-row items-center justify-between">
               <div className="flex flex-row items-center">
@@ -105,7 +105,7 @@ export default function AddUser() {
                     d="M4 8h16M4 16h16"
                   />
                 </svg>
-                <p className="text-3xl font-sans font-bold pl-2">Add User</p>
+                <p className="text-3xl font-sans font-bold pl-2">Edit User</p>
                 <div
                   id="search-toggle"
                   className="search-icon cursor-pointer pl-3"
@@ -149,7 +149,7 @@ export default function AddUser() {
           </div>        
           <div className="bg-gray-200  p-5">            
             <div className="bg-white p-5 shadow-lg flex flex-col justify-between">
-                <p className="text-black text-lg font-sans font-black">Create User Profile</p>
+                <p className="text-black text-lg font-sans font-black">Update User Profile</p>
                 <div className="p-5 shadow-lg flex flex-col gap-5">
                   <div className="flex flex-row gap-6">         
                   {createObjectURL &&
@@ -213,7 +213,7 @@ export default function AddUser() {
                       }}
                     >
                       <p className="text-white text-lg font-semibold group-hover:text-white ">
-                        Submit
+                        Update
                       </p>
                     </button>
                   </div>

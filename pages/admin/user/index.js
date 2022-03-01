@@ -135,6 +135,11 @@ export default function User() {
                                               query: {id:user.id}
                                             })
                                         }}
+                                        editClicked={()=>{
+                                          router.push({
+                                            'pathname':'/admin/user/edit-user'
+                                          })
+                                      }}
                                       />)
                                     }
                       )
