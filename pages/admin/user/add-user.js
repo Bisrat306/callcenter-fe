@@ -44,7 +44,12 @@ export default function AddUser() {
         setCreateObjectURL(URL.createObjectURL(i));
       }
     };
-  
+    const addUser=()=>{
+      setShowModal(true)
+      setModalTitle("Success")
+      setModalBody("Successfully added user.")
+      setModalButtonText1("Close")
+      }
 
   return (
     <>
@@ -68,13 +73,13 @@ export default function AddUser() {
         {/*USER DROPDOWN*/}
         <div className="hidden userDropDown absolute right-10 mt-24  w-64 bg-white rounded-md shadow-lg overflow-hidden z-20 backdrop-grayscale-0" >                        
                 <div className="py-2">
-                    <div    className="flex group items-center px-4 py-3 border-b bg-white hover:bg-blue-300 -mx-2"
+                    <div    className="flex group items-center px-4 py-3 border-b bg-white hover:bg-blue-300 -mx-2 cursor-pointer"
                         >     
                         <p className="text-gray-600 text-sm mx-2 group-hover:text-white">
                             <span className="font-bold" >Change Password </span>
                         </p>
                     </div>
-                    <div    className="flex  group items-center px-4 py-3 bg-white hover:bg-blue-300 -mx-2"
+                    <div    className="flex  group items-center px-4 py-3 bg-white hover:bg-blue-300 -mx-2 cursor-pointer"
                         onClick={()=>{sessionStorage.clear(); router.push('/')}}
                         >     
                         <p className="text-gray-600 group-hover:text-white text-sm mx-2">
@@ -209,7 +214,7 @@ export default function AddUser() {
                     <button
                       className="flex items-center justify-center rounded-lg  h-10 w-full mt-6 mr-10 bg-blue-400 group-hover:bg-blue-600"
                       onClick={() => {
-                        showMod();
+                        addUser()
                       }}
                     >
                       <p className="text-white text-lg font-semibold group-hover:text-white ">

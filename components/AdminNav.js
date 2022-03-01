@@ -8,7 +8,7 @@ export default function AdminNav(props){
     return(
         <>
         {/*Logo Position*/}
-        <div className="flex flex-col items-center h-48 w-full bg-white border-gray-300" onClick={()=>{router.push('/admin')}}>
+        <div className="flex flex-col items-center h-48 w-full bg-white border-gray-300 cursor-pointer" onClick={()=>{router.push('/admin')}}>
                     {router.pathname==='/admin/user/add-user' || router.pathname==='/admin/user/user-detail' || router.pathname==='/admin/user/edit-user' ?
                     <img src='../../call_center.png'/>:
                     <img src='../call_center.png'/>}

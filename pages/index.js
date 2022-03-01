@@ -12,7 +12,7 @@ export default function Login() {
           <div className="w-full lg:w-4/12 px-4">
             <div className=" flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0"> 
               <div className="grid place-items-center">
-              <img src={'../call_center.png'}/>
+                <img src={'../call_center.png'}/>
               </div>  
               <div className="grid place-items-center">
               <label
