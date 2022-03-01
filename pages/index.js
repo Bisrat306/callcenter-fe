@@ -7,10 +7,29 @@ export default function Login() {
   const router=useRouter()
   return (
     <>
-      <div className="container mx-auto items-center justify-center h-full">
+      <div className="items-center justify-center h-full bg-[url('../public/operator.jpg.png')] bg-cover ">
         <div className="flex content-center items-center justify-center h-screen ">
           <div className="w-full lg:w-4/12 px-4">
-            <div className=" flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">             
+            <div className=" flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0"> 
+              <div className="grid place-items-center">
+              <img src={'../call_center.png'}/>
+              </div>  
+              <div className="grid place-items-center">
+              <label
+                      className="block uppercase text-blue-600 text-md font-bold"
+                      htmlFor="grid-password"
+                    >
+                      Welcome to the Call Center
+                    </label>
+              </div>
+              <div className="grid place-items-center">
+              <label
+                      className="block uppercase text-blue-600 text-base font-bold"
+                      htmlFor="grid-password"
+                    >
+                      Log In
+                    </label>
+              </div>            
               <div className="flex-auto px-4 lg:px-10 py-10 pt-10">
                   <div className=" w-full mb-3">
                     <label
