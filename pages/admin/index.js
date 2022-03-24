@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useRouter } from "next/router";
 import SideNavButton from "../../components/SideNavButtons";
 import { buttons } from "../../utils/constants";
 import AdminNav from "../../components/AdminNav";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import Transport from "../../api/transport";
 
 export default function Admin() {
     const router=useRouter();
+    const [result,setResult]=useState([])
+    const [loading,setLoading]=useState(true)
     const YearData = [
         {year: '2022', calls: 1800},
         {year: '2021', calls: 3600},
@@ -73,11 +76,34 @@ export default function Admin() {
         </LineChart>
       );
 
+
+      const getPeriodicReport=()=>{
+        Transport.HTTP.getPeriodicReport(sessionStorage.getItem('token')).then(res=>{
+          setResult(res.data.results)
+        }).catch(err=>{
+          console.log(err)
+          alert(JSON.stringify(err))
+        })
+        setLoading(false)
+    }
+      const checkSession=()=>{
+        if (sessionStorage.length===0){
+          router.push('/')
+        }
+        else if(loading){
+            getPeriodicReport()
+        }
+      }
+      useEffect(()=>{
+        checkSession()
+      })
+
     return( <>
             {/*USER DROPDOWN*/}
             <div className="hidden userDropDown absolute right-10 mt-24  w-64 bg-white rounded-md shadow-lg overflow-hidden z-20 backdrop-grayscale-0" >                        
                 <div className="py-2">
                     <div    className="flex group items-center px-4 py-3 border-b bg-white hover:bg-blue-300 -mx-2 cursor-pointer"
+                            onClick={()=>{router.push('/reset')}}
                         >     
                         <p className="text-gray-600 text-sm mx-2 group-hover:text-white ">
                             <span className="font-bold" >Change Password </span>
@@ -115,9 +141,8 @@ export default function Admin() {
                             <div className="flex flex-row cursor-pointer" onClick={()=>{document.querySelector('.userDropDown').classList.toggle('hidden')}}>
                                 <img src="user.png" className="h-12 pr-3"/>
                                 <div className="flex flex-col">
-                                    <p className="text-black text-xl ">User Name</p>
-                                    <p className="text-gray-400 text-base">User role</p>
-                
+                                    <p className="text-black text-xl ">{process.browser && sessionStorage.getItem('userName')}</p>
+                                    <p className="text-gray-400 text-base">{process.browser && sessionStorage.getItem('role')}</p>                
                                 </div>
                             </div>
                         </div>                        
@@ -127,10 +152,20 @@ export default function Admin() {
                             </div>
                         </div>
                     </div>
+                    {/**/}
+                    {loading? <div>
+                    
+                    <svg role="status" clasNames="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"></path>
+                      <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"></path>
+                    </svg>
+  
+                    </div>:
+                    result.length!==0 &&
                     <div className="bg-gray-200  p-5">
                         <div className="bg-white rounded-3xl shadow-lg ">
                             <div className="flex flex-row p-10 gap-6">
-                                <div className="w-1/4 h-36 bg-green-300 rounded-3xl flex flex-row items-center gap-3">
+                                <div className="w-1/3 h-36 bg-green-300 rounded-3xl flex flex-row items-center gap-3">
                                     {/*Phone svg*/}
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-20" fill="none" viewBox="0 0 24 24" stroke="green">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 3l-6 6m0 0V4m0 5h5M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
@@ -141,18 +176,32 @@ export default function Admin() {
                                         </p>
                                         <div className="flex flex-row gap-1">
                                             <p className="text-xl font-bold text-green-800">
-                                                3600 
+                                                { result.year.totalCount} 
                                             </p>
+                                            {result.year.totalCount>result.previous_year.totalCount?
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="green">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M8 7l4-4m0 0l4 4m-4-4v18" />
                                                 </svg>
-                                                <p className="text-sm font-bold text-green-800">25%</p>
-                                            </div>
+                                                <p className="text-sm font-bold text-green-800">{result.previous_year.totalCount===0?"100":(result.previous_year.totalCount/result.year.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
+                                            result.year.totalCount<result.previous_year.totalCount?
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="red">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-red-800">{result.previous_year.totalCount===0?"100":(result.year.totalCount/result.previous_year.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="black">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M18 12H6" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-blue-800">0%</p>
+                                            </div>}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-1/4 h-36 bg-blue-300 rounded-3xl flex flex-row items-center gap-3">
+                                <div className="w-1/3 h-36 bg-blue-300 rounded-3xl flex flex-row items-center gap-3">
                                     {/*Phone svg*/}
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-20" fill="none" viewBox="0 0 24 24" stroke="blue">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 3l-6 6m0 0V4m0 5h5M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
@@ -163,40 +212,33 @@ export default function Admin() {
                                         </p>
                                         <div className="flex flex-row gap-1">
                                             <p className="text-xl font-bold text-blue-800">
-                                                300 
+                                            {result.month.totalCount} 
                                             </p>
+                                            
+                                            {result.month.totalCount>result.previous_year.totalCount?
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="green">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M8 7l4-4m0 0l4 4m-4-4v18" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-green-800">{result.previous_month.totalCount===0?"100":(result.previous_month.totalCount/result.month.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
+                                            result.month.totalCount<result.previous_year.totalCount?
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="red">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-red-800">{result.previous_month.totalCount===0?"100":(result.month.totalCount/result.previous_month.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="black">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M18 12H6" />
                                                 </svg>
                                                 <p className="text-sm font-bold text-blue-800">0%</p>
-                                            </div>
+                                            </div>}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-1/4 h-36 bg-purple-300 rounded-3xl flex flex-row items-center gap-3">
-                                    {/*Phone svg*/}
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-20" fill="none" viewBox="0 0 24 24" stroke="purple">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 3l-6 6m0 0V4m0 5h5M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
-                                    </svg>
-                                    <div >
-                                        <p className="text-xl text-purple-800">
-                                            Total Calls - Week
-                                        </p>
-                                        <div className="flex flex-row gap-1">
-                                            <p className="text-xl font-bold text-purple-800">
-                                                100 
-                                            </p>
-                                            <div className="flex flex-row items-end mb-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="green">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M8 7l4-4m0 0l4 4m-4-4v18" />
-                                                </svg>
-                                                <p className="text-sm font-bold text-purple-800">25%</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-1/4 h-36 bg-red-300 rounded-3xl flex flex-row items-center gap-3">
+                                <div className="w-1/3 h-36 bg-red-300 rounded-3xl flex flex-row items-center gap-3">
                                     {/*Phone svg*/}
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-20" fill="none" viewBox="0 0 24 24" stroke="red">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 3l-6 6m0 0V4m0 5h5M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
@@ -207,14 +249,28 @@ export default function Admin() {
                                         </p>
                                         <div className="flex flex-row gap-1">
                                             <p className="text-xl font-bold text-red-800">
-                                                11 
+                                            {result.day.totalCount} 
                                             </p>
+                                            {result.day.totalCount>result.previous_day.totalCount?
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="green">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M8 7l4-4m0 0l4 4m-4-4v18" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-green-800">{result.previous_day.totalCount===0?"100":(result.previous_day.totalCount/result.day.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
+                                            result.day.totalCount<result.previous_day.totalCount?
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="red">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
-                                                <p className="text-sm font-bold text-red-800">15%</p>
-                                            </div>
+                                                <p className="text-sm font-bold text-red-800">{result.previous_year.totalCount===0?"100":(result.day.totalCount/result.previous_day.totalCount).toFixed(2)*100}%</p>
+                                            </div>:
+                                            <div className="flex flex-row items-end mb-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="black">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M18 12H6" />
+                                                </svg>
+                                                <p className="text-sm font-bold text-blue-800">0%</p>
+                                            </div>}
                                         </div>
                                     </div>
                                 </div>
@@ -222,7 +278,8 @@ export default function Admin() {
 
                         </div>
 
-                    </div>
+                    </div>}
+                    {/** Graph representation **/}
                     <div className="bg-gray-200 rounded-3xl p-5">
                         <div className="bg-white rounded-3xl">
                             <div className="flex flex-col p-5 ">

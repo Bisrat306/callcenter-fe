@@ -7,8 +7,10 @@ import jwt_decode from "jwt-decode";
 
 export default function Login() {
   const [email,setEmail] = useState('')
-  const [password,setPassword]= useState('')
+  const [newPassword,setNewPassword]= useState('')
+  const [confirmPassword,setConfirmPassword]= useState('')
   const [loading,setLoading] = useState(false)
+  const [back,setBack] = useState(1)
   const router=useRouter()
 
   const [showModal,setShowModal] = useState(false)
@@ -20,30 +22,26 @@ export default function Login() {
 
 
   const userLogin=()=>{
-    if(email===''||password===''){
+    if(newPassword===''||confirmPassword===''){
         setModalTitle("Error")
-        setModalBody("Please make sure you have submitted all necessary fields.")                
+        setModalBody("Please make sure you have filled all necessary fields.")                
         setModalButtonText1("Close")
         setShowModal(true)
 
     }else{
         var data={
-          uname:email,
-          password:password
+          password:newPassword
         }
-        Transport.HTTP.login(data).then(res=>{
-          var decoded = jwt_decode(res.data.results.token);
-          sessionStorage.setItem("token",res.data.results.token)
-          sessionStorage.setItem("userName",decoded.user.uname)
-          sessionStorage.setItem("name",decoded.user.name)
-          sessionStorage.setItem("role",decoded.user.role)
-          sessionStorage.setItem("id",decoded.user.id)
-          if(decoded.user.role==="Agent"){router.push('/callcenter');}          
-          else if(decoded.user.role==="Admin"){router.push('/admin');}
+        Transport.HTTP.resetPassword(sessionStorage.getItem('token'),data).then(res=>{
+            setModalTitle("Success")
+          setModalBody("Your password has been successfully changed.")                
+          setModalButtonText1("Close")
+          setShowModal(true)
         }).catch((err)=>
-        {
+        {   
+            setBack(0)
           setModalTitle("Error")
-          setModalBody("Incorrect Username and password. Please enter the correct username and password.")                
+          setModalBody(JSON.stringify(err))                
           setModalButtonText1("Close")
           setShowModal(true)
           
@@ -63,7 +61,7 @@ export default function Login() {
                     button1Text={modalButtonText1}
                     button2Text={modalButtonText2}
                     button1Action={(val)=>{
-                        setShowModal(!showModal);}}
+                      {setShowModal(!showModal); if(back){router.back();}setBack(1)}}}
                     button2Action={()=>{                        
                         setShowModal(!showModal);
                     }}
@@ -74,65 +72,37 @@ export default function Login() {
         <div className="flex content-center items-center justify-center h-screen ">
           <div className="w-full lg:w-4/12 px-4">
             <div className=" flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0"> 
-              <div className="grid place-items-center">
-                <img src={'../call_center.png'}/>
-              </div>  
-              <div className="grid place-items-center">
-              <label
-                      className="block uppercase text-blue-600 text-md font-bold"
-                      htmlFor="grid-password"
-                    >
-                      Welcome to the Call Center
-                    </label>
-              </div>
-              <div className="grid place-items-center">
-              <label
-                      className="block uppercase text-blue-600 text-base font-bold"
-                      htmlFor="grid-password"
-                    >
-                      Log In
-                    </label>
-              </div>            
+              
+                       
               <div className="flex-auto px-4 lg:px-10 py-10 pt-10">
-                  <div className=" w-full mb-3">
-                    <label
-                      className="block uppercase text-blue-600 text-xs font-bold mb-2"
-                      htmlFor="grid-password"
-                    >
-                      Email
-                    </label>
-                    <input
-                      className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                      placeholder="Email"
-                      onChange={(ev)=>setEmail(ev.target.value)}
-                    />
-                  </div>
-
                   <div className=" w-full mb-3">
                     <label
                       className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
                       htmlFor="grid-password"
                     >
-                      Password
+                      New Password
+                    </label>
+                    <input
+                        type="password"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Email"
+                        onChange={(ev)=>setNewPassword(ev.target.value)}
+                    />
+                  </div>
+
+                  <div className=" w-full mb-3">
+                    <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="grid-password"
+                    >
+                      Confirm Password
                     </label>
                     <input
                       type="password"
                       className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
                       placeholder="Password"
-                      onChange={(ev)=>{setPassword(ev.target.value)}}
+                      onChange={(ev)=>{setConfirmPassword(ev.target.value)}}
                     />
-                  </div>
-                  <div>
-                    <label className="inline-flex items-center cursor-pointer">
-                      <input
-                        id="customCheckLogin"
-                        type="checkbox"
-                        className="form-checkbox border-0 rounded text-blueGray-700 ml-1 w-5 h-5 ease-linear transition-all duration-150"
-                      />
-                      <span className="ml-2 text-sm font-semibold text-blueGray-600">
-                        Remember me
-                      </span>
-                    </label>
                   </div>
                   {loading && <div>
                     
@@ -151,7 +121,7 @@ export default function Login() {
                         //router.push('/callcenter')
                       userLogin() }}
                     >
-                      Sign In
+                      Change Password
                     </button>
                   </div>
               </div>

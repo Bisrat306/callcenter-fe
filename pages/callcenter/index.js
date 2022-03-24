@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Router, useRouter} from "next/router";
 import Modal from "../../components/modals.js"
+import Transport from "../../api/transport.js";
 
 
 export default function AddCall() {
@@ -30,30 +31,84 @@ export default function AddCall() {
     const [otherCaseType,setOtherCaseType]=useState(false)
 
     const showMod=()=>{
-        
-        let data={
+        alert(JSON.stringify({
+            "agentId":sessionStorage.getItem('id'),
             "age":age,
             "sex":sex,
             "caseType":caseType,
             "abuseTime":abuseTime,
             "disability":disability,
-            "hivStat":hivStat,
-            "provision":provision,
+            "hivStaust":hivStat,
+            "serviceProvision":provision,
             "location":location,
             "unservicedCall":unservicedCall,
             "maritalStatus":maritalStatus,
-            "joinGroup":unservicedCall,
+            "interestToJoinGroup":joinGroup,
             "callerStatus":callerStatus,
-            "callTime":callTime
+            "timeOfCall":callTime
+
+        }))
+        if(
+            callTime!=="" && age!=="" && sex!=="" && caseType!=="" && abuseTime!=="" && disability!=="" && hivStat!=="" && provision!=="" && location!=="" 
+             && unservicedCall!=="" && maritalStatus!=="" && joinGroup!=="" && callerStatus !== ""
+
+        ){
+        let data={
+            "agentId":sessionStorage.getItem('id'),
+            "age":age,
+            "sex":sex,
+            "caseType":caseType,
+            "abuseTime":abuseTime,
+            "disability":disability,
+            "hivStaust":hivStat,
+            "serviceProvision":provision,
+            "location":location,
+            "unservicedCall":unservicedCall,
+            "maritalStatus":maritalStatus,
+            "interestToJoinGroup":joinGroup,
+            "callerStatus":callerStatus,
+            "timeOfCall":callTime
 
         }
         console.log(data)
-        setModalTitle("Success")
-        setModalBody(JSON.stringify(data))                
-        setModalButtonText1("Close")
-        setShowModal(true)
-    }
+        Transport.HTTP.addCalls(data,sessionStorage.getItem('token')).then(res=>{
+            setModalTitle("Success")
+            setModalBody("You have successfuly added the call.")                
+            setModalButtonText1("Close")
+            setShowModal(true)
+            resetPage()
+        }).catch(err=>{
+            setModalTitle("Error")
+            setModalBody(JSON.stringify(err))                
+            setModalButtonText1("Close")
+            setShowModal(true)
+        })
+    }else{
+            setModalTitle("Error")
+            setModalBody("You must submit all fields")                
+            setModalButtonText1("Close")
+            setShowModal(true)
 
+    }
+        
+    }
+    const resetPage=()=>{
+            setCallTime('')
+            setAge('')
+            setSex('')
+            setCaseType('')
+            setAbuseTime('')
+            setDisability('')
+            setHivStat('')
+            setProvision('')
+            setLocation('')
+            setUnservicedCall('')
+            setMaritalStatu('')
+            setJoinGroup('')
+            setCallerStatus('')
+            setOtherCaseType(false)
+    }
+    let today = new Date().toISOString().slice(0, 10)
     return (
         <>
         {
@@ -76,7 +131,9 @@ export default function AddCall() {
             {/*USER DROPDOWN*/}
             <div className="hidden userDropDown absolute right-10 mt-24  w-64 bg-white rounded-md shadow-lg overflow-hidden z-20 backdrop-grayscale-0" >                        
                 <div className="py-2">
-                    <div    className="flex group items-center px-4 py-3 border-b bg-white hover:bg-blue-300 -mx-2 cursor-pointer"
+                    <div   
+                        className="flex group items-center px-4 py-3 border-b bg-white hover:bg-blue-300 -mx-2 cursor-pointer"
+                        onClick={()=>{router.push('/reset')}}
                         >     
                         <p className="text-gray-600 text-sm mx-2 group-hover:text-white">
                             <span className="font-bold" >Change Password </span>
@@ -104,8 +161,8 @@ export default function AddCall() {
                             <div className="flex flex-row cursor-pointer" onClick={()=>{document.querySelector('.userDropDown').classList.toggle('hidden')}}>
                                 <img src="user.png" className="h-12 pr-3"/>
                                 <div className="flex flex-col">
-                                    <p className="text-black text-xl ">User Name</p>
-                                    <p className="text-gray-400 text-base">Call Receiver</p>
+                                    <p className="text-black text-xl ">{process.browser && sessionStorage.getItem('userName')}</p>
+                                    <p className="text-gray-400 text-base">{process.browser && sessionStorage.getItem('role')}</p>
                 
                                 </div>
                             </div>
@@ -119,6 +176,7 @@ export default function AddCall() {
                             </p>
                             <input  
                                     value={callTime}
+                                    min={today}
                                     onChange={ev=>setCallTime(ev.target.value)}
                                     type="datetime-local"
                                     className={ "p-3 border-solid border border-gray-400 h-10 mt-2 rounded-lg w-full text-sm"}/>

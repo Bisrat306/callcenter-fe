@@ -1,34 +1,75 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useRouter } from "next/router";
 import AdminNav from "../../../components/AdminNav";
 import { CSVLink } from "react-csv";
 import { NEED_EXPORT_COLUMNS } from "../../../utils/constants";
 import ModalImage from "react-modal-image";
+import { format } from "date-fns";
+import Transport from "../../../api/transport";
 
 export default function UserDetail() {
   const router = useRouter();
+  const [loading,setLoading] = useState(true)
+    const [user,setUser] = useState({})
+    const [fname,setFname]=useState("")
+    const [lname,setLname]=useState("")
+    const [uname,setUname]=useState("")
+    const [role,setRole]=useState("")
+    const [image, setImage] = useState(null);
+    const [createObjectURL, setCreateObjectURL] = useState(null);
+    const [back,setBack]=useState(1)
+    const [fromTime,setFromTime]=useState("")
+    const [toTime,setToTime]=useState("")
+    const [report,setReport]=useState([])
 
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
-  const [callReceiver, setCallReceiver] = useState("");
-  const [age, setAge] = useState("");
-  const [sex, setSex] = useState("");
-  const [caseType, setCaseType] = useState("");
-  const [abuseTime, setAbuseTime] = useState("");
-  const [disability, setDisability] = useState("");
-  const [hivStat, setHivStat] = useState("");
-  const [provision, setProvision] = useState("");
-  const [location, setLocation] = useState("");
-  const [unservicedCall, setUnservicedCall] = useState("");
-  const [maritalStatus, setMaritalStatu] = useState("");
-  const [joinGroup, setJoinGroup] = useState("");
-  const [callerStatus, setCallerStatus] = useState("");
-  const [otherCaseType, setOtherCaseType] = useState(false);
-
+    
   const items = [
     { name: "Bisrat", num: "0911233223" },
     { name: "Turkey", num: "091133223" },
   ];
+
+    
+    const [showModal,setShowModal] = useState(false)
+    const [modalBody,setModalBody] = useState("")
+    const [modalTitle,setModalTitle] = useState("")
+    const [modalButtonText1,setModalButtonText1] = useState("")
+    const [modalButtonText2,setModalButtonText2] = useState("")
+    const [modalIsPrompt,setModalIsPrompt] = useState(false)
+
+    const getUser=()=>{
+      Transport.HTTP.getUser(sessionStorage.getItem('token'),router?.query?.id).then(res=>{
+        setUser(res.data.results)
+        setFname(res.data.results.name.split(" ")[0])
+        setLname(res.data.results.name.split(" ")[1])
+        setUname(res.data.results.uname)
+        setRole(res.data.results.role)
+
+      }).catch(err=>{
+        console.log(err)
+      })
+      setLoading(false)
+    }
+    const getReport=()=>{
+      Transport.HTTP.getAgentReport(sessionStorage.getItem('token'),router?.query?.id).then(res=>{
+        setReport(res.data.results.call)
+        console.log(res.data.results.call)
+      }).catch(err=>{
+        console.log(err)
+      })
+      setLoading(false)
+    }
+    const checkSession=()=>{
+      if (sessionStorage.length===0){
+        router.push('/')
+      }
+      else if(loading){
+        getUser()
+        getReport()
+      }
+    }
+    useEffect(()=>{
+      checkSession()
+    })
 
   return (
     <>
@@ -94,8 +135,8 @@ export default function UserDetail() {
               <div className="flex flex-row cursor-pointer" onClick={()=>{document.querySelector('.userDropDown').classList.toggle('hidden')}}>
                 <img src="../../user.png" className="h-12 pr-3" />
                 <div className="flex flex-col">
-                  <p className="text-black text-xl ">User Name</p>
-                  <p className="text-gray-400 text-base">User role</p>
+                    <p className="text-black text-xl ">{process.browser && sessionStorage.getItem('userName')}</p>
+                    <p className="text-gray-400 text-base">{process.browser && sessionStorage.getItem('role')}</p>
                 </div>
               </div>
             </div>
@@ -114,13 +155,26 @@ export default function UserDetail() {
               </div>
             </div>
           </div>
-
-            {/*HIDES AND UNHIDES FILTER VIEW*/}        
+                
+          {loading? <div>
+                    
+                    <svg role="status" className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"></path>
+                      <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"></path>
+                    </svg>
+  
+                    </div>:     
             <div className="bg-gray-200  p-5">
                 <div className="bg-white p-5 shadow-lg flex flex-col justify-between">
                     <div className="flex flex-row gap-5 items-center">
                         <p className="text-black text-lg font-sans font-black mt-3 mb-2">User Profile</p>
-                        <div onClick={()=>{router.push('/admin/user/edit-user')}}>
+                        <div 
+                              onClick={()=>{
+                                router.push({
+                                  'pathname':'/admin/user/edit-user',
+                                  query: {id:user._id}
+                                })
+                                }}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="stroke-black hover:stroke-blue-700 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24">
                                 <title>Edit User</title>
                                 <path strokeLinecap="round" strokLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -142,21 +196,21 @@ export default function UserDetail() {
                             <div className="flex flex-row gap-5 ">
                                 <div className="flex flex-col gap-3 w-1/2">
                                     <p className="text-lg text-blue-800 font-black font-sans">First Name</p>
-                                    <p className="text-base text-gray-400 font-semibold font-sans">Bisrat</p>
+                                    <p className="text-base text-gray-400 font-semibold font-sans">{fname}</p>
                                 </div>
                                 <div className="flex flex-col gap-3 w-1/2">
                                     <p className="text-lg text-blue-800 font-black font-sans">Last Name</p>
-                                    <p className="text-base text-gray-400 font-semibold font-sans">Moges</p>
+                                    <p className="text-base text-gray-400 font-semibold font-sans">{lname}</p>
                                 </div>
                             </div>
                             <div className="flex flex-row gap-5 ">
                             <div className="flex flex-col gap-3 w-1/2">
                                     <p className="text-lg text-blue-800 font-black font-sans">User Name</p>
-                                    <p className="text-base text-gray-400 font-semibold font-sans">B_Moges</p>
+                                    <p className="text-base text-gray-400 font-semibold font-sans">{uname}</p>
                                 </div>
                                 <div className="flex flex-col gap-3 w-1/2">
                                     <p className="text-lg text-blue-800 font-black font-sans">User Type</p>
-                                    <p className="text-base text-gray-400 font-semibold font-sans">Admin</p>
+                                    <p className="text-base text-gray-400 font-semibold font-sans">{role}</p>
                                 </div>
                             </div>
 
@@ -164,9 +218,9 @@ export default function UserDetail() {
                         </div>
                     </div>    
                 </div>
-            </div>
+            </div>}
                   
-
+                
 
           {/*HIDES AND UNHIDES FILTER VIEW*/}        
           <div className="bg-gray-200  p-5">
@@ -260,6 +314,10 @@ export default function UserDetail() {
                 <div className="overflow-x-auto shadow-md sm:rounded-lg">
                   <div className="inline-block min-w-full align-middle">
                     <div className="overflow-hidden ">
+                      
+                      {report.length===0?
+                      
+                      <p className=" p-10 hover:underline hover:decoration-blue-700 hover:text-blue-700 cursor-pointer">Report not available</p>:
                       <table className="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-700">
                         <thead className="bg-gray-100 dark:bg-gray-700">
                           <tr>
@@ -268,13 +326,7 @@ export default function UserDetail() {
                               className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
                             >
                                 Date
-                            </th>                            
-                            <th
-                              scope="col"
-                              className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
-                            >
-                                Location
-                            </th>
+                            </th>  
                             <th
                               scope="col"
                               className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400"
@@ -289,22 +341,21 @@ export default function UserDetail() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                          <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                          { report.map((rep,index)=>{
+                            return(
+                            <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                             <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                              Feb 28,2022
+                            { format(new Date(rep.timeOfCall), 'MM-dd-yyyy') }
+                            </td>
+                            <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                              {rep.sex}
                             </td>
                             <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white">
-                              Addis Ababa
-                            </td> 
-                            <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                              Female
+                              {rep.callerStatus}
                             </td>
-                            <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-white">
-                              New Caller
-                            </td>
-                          </tr>
+                          </tr>)})}
                         </tbody>
-                      </table>
+                      </table>}
                     </div>
                   </div>
                 </div>

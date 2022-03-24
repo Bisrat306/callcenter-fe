@@ -1,25 +1,17 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useRouter } from "next/router";
 import AdminNav from "../../../components/AdminNav";
 import { CSVLink } from "react-csv";
 import { NEED_EXPORT_COLUMNS } from "../../../utils/constants";
 import UserListComponent from "../../../components/UserListComponent";
 import Modal from "../../../components/modals";
+import Transport from "../../../api/transport";
 
 export default function User() {
   const router = useRouter();
-  const users=[
-                  {
-                    name:"Bisrat",
-                    id:1,
-                    src:"../user.png"
-                  },
-                  {
-                    name:"Abebe",
-                    id:2,
-                    src:"../user.png"
-                  }
-              ]
+  const [users,setUsers]=useState([])
+  const [loading,setLoading] = useState(true)
+  const [back,setBack] = useState(1)
   
   
   const [showModal,setShowModal] = useState(false)
@@ -29,13 +21,43 @@ export default function User() {
   const [modalButtonText2,setModalButtonText2] = useState("")
   const [modalIsPrompt,setModalIsPrompt] = useState(false)
 
-  const delUser=()=>{
+  const getAllUser=()=>{
+    Transport.HTTP.getUsers(sessionStorage.getItem('token')).then(res=>{
+      setUsers(res.data.results.data)
+    }).catch(err=>{
+      console.log(err)
+      alert(JSON.stringify(err))
+    })
+    setLoading(false)
+}
+  const delUser=(id)=>{
+        setLoading(true)
+        Transport.HTTP.removeUser(id,sessionStorage.getItem('token')).then(res=>{
           setShowModal(true)
           setModalTitle("Success")
           setModalBody("Successfully deleted user.")
           setModalButtonText1("Close")
+        }).then(err=>{
+          setBack(0)
+          setModalTitle("Error")
+          setModalButtonText1("close")
+          setShowModal(true)
+        })
+        
+        setLoading(true)
+          
   }
-
+  const checkSession=()=>{
+    if (sessionStorage.length===0){
+      router.push('/')
+    }
+    else if(loading){
+      getAllUser()
+    }
+  }
+  useEffect(()=>{
+    checkSession()
+  })
   return (
     <>
 
@@ -48,7 +70,7 @@ export default function User() {
                     button1Text={modalButtonText1}
                     button2Text={modalButtonText2}
                     button1Action={(val)=>{
-                        setShowModal(!showModal);}}
+                      {setShowModal(!showModal); if(back){router.back();}setBack(1)}}}
                     button2Action={()=>{                        
                         setShowModal(!showModal);
                     }}
@@ -118,8 +140,9 @@ export default function User() {
               <div className="flex flex-row cursor-pointer" onClick={()=>{document.querySelector('.userDropDown').classList.toggle('hidden')}}>
                 <img src="../user.png" className="h-12 pr-3" />
                 <div className="flex flex-col">
-                  <p className="text-black text-xl ">User Name</p>
-                  <p className="text-gray-400 text-base">User role</p>
+                    <p className="text-black text-xl ">{process.browser && sessionStorage.getItem('userName')}</p>
+                    <p className="text-gray-400 text-base">{process.browser && sessionStorage.getItem('role')}</p>
+
                 </div>
               </div>
             </div>
@@ -154,28 +177,37 @@ export default function User() {
                         </svg>
                         </div>
                       </div>
-                      {
+                      {loading? <div>
+                    
+                    <svg role="status" className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"></path>
+                      <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"></path>
+                    </svg>
+  
+                    </div>:
+                      
                       users && users.length!==0?
                       users.map((user,i)=>{
                         // eslint-disable-next-line react/jsx-key
                         return (<UserListComponent  
                                         name={user.name} 
-                                        id={"new"+JSON.stringify(user.id)} 
-                                        src={user.src} 
-                                        hovered={()=>{document.querySelector(".new"+JSON.stringify(user.id)).classList.toggle('hidden')}} 
+                                        id={"new"+user._id} 
+                                        src={"../user.png"} 
+                                        hovered={()=>{document.querySelector(".new"+user._id).classList.toggle('hidden')}} 
                                         clicked={()=>{
                                             router.push({
                                               'pathname':'/admin/user/user-detail',
-                                              query: {id:user.id}
+                                              query: {id:user._id}
                                             })
                                         }}
                                         editClicked={()=>{
                                           router.push({
-                                            'pathname':'/admin/user/edit-user'
+                                            'pathname':'/admin/user/edit-user',
+                                            query: {id:user._id}
                                           })
                                         }}
                                         deleteClicked={()=>{
-                                          delUser()
+                                         delUser(user._id)
                                         }}
                                       />)
                                     }

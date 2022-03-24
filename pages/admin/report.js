@@ -28,6 +28,27 @@ export default function Report() {
     { name: "Bisrat", num: "0911233223" },
     { name: "Turkey", num: "091133223" },
   ];
+  const [report,setReport]=useState([])
+  const [loading,setLoading] = useState(true)
+  const [back,setBack] = useState(1)
+  
+  
+  const [showModal,setShowModal] = useState(false)
+  const [modalBody,setModalBody] = useState("")
+  const [modalTitle,setModalTitle] = useState("")
+  const [modalButtonText1,setModalButtonText1] = useState("")
+  const [modalButtonText2,setModalButtonText2] = useState("")
+  const [modalIsPrompt,setModalIsPrompt] = useState(false)
+
+  const getReport=()=>{
+    Transport.HTTP.getAgentReport(sessionStorage.getItem('token')).then(res=>{
+      setUsers(res.data.results.data)
+    }).catch(err=>{
+      console.log(err)
+      alert(JSON.stringify(err))
+    })
+    setLoading(false)
+}
 
   return (
     <>
@@ -93,8 +114,8 @@ export default function Report() {
               <div className="flex flex-row cursor-pointer" onClick={()=>{document.querySelector('.userDropDown').classList.toggle('hidden')}}>
                 <img src="../user.png" className="h-12 pr-3" />
                 <div className="flex flex-col">
-                  <p className="text-black text-xl ">User Name</p>
-                  <p className="text-gray-400 text-base">User role</p>
+                    <p className="text-black text-xl ">{process.browser && sessionStorage.getItem('userName')}</p>
+                    <p className="text-gray-400 text-base">{process.browser && sessionStorage.getItem('role')}</p>
                 </div>
               </div>
             </div>
@@ -513,6 +534,7 @@ export default function Report() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+
                           <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
                             <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
                               Jan 20,2022
