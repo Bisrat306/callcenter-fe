@@ -10,6 +10,7 @@ export default function UserReport() {
   const router = useRouter();
   const [loading,setLoading] = useState(true)
   const [reports,setReports] = useState([])
+  const [back,setBack]=useState(1)
 
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
@@ -40,9 +41,26 @@ export default function UserReport() {
     const [modalIsPrompt,setModalIsPrompt] = useState(false)
 
     
-    const getAgentReport=()=>{     
-      Transport.HTTP.getAgentsReport(sessionStorage.getItem('token')).then(res=>{        
-        setReports(res.data.results)
+    const getAgentReport=()=>{  
+        if(fromTime!==""&&toTime!==""){
+          var params={
+            startDate:fromTime,
+            endDate:toTime
+          }
+        }else if(fromTime!==""&&toTime===""){
+          var params={
+            startDate:fromTime
+          }
+        }else if(fromTime===""&&toTime!==""){
+          var params={
+            startDate:fromTime
+          }
+        }else{
+              var params={ }
+            }
+        setLoading(true)   
+      Transport.HTTP.getAgentsReport(sessionStorage.getItem('token'),params).then(res=>{        
+        setReports(res.data.results)    
       }).catch(err=>{              
         setBack(0)
         setModalTitle("Error")
@@ -172,13 +190,20 @@ export default function UserReport() {
           {/*HIDES AND UNHIDES FILTER VIEW*/}        
           <div className="bg-gray-200  p-5">
                 <div className="bg-white p-5 shadow-lg flex flex-row justify-between">
-                    <div onClick={() => {
-                document
-                    .querySelector(".filter-content")
-                    .classList.toggle("hidden");
-                }}>
-                        <p className="hover:underline hover:decoration-blue-700 hover:text-blue-700 cursor-pointer">Show Filters</p>
-                    </div>
+                <div onClick={() => {
+                          document
+                              .querySelector(".filter-content")
+                              .classList.toggle("hidden");
+                          document
+                              .querySelector(".show-filters")
+                              .classList.toggle("hidden");
+                          document
+                              .querySelector(".hide-filters")
+                              .classList.toggle("hidden");
+                          }}>
+                                  <p className="show-filters hover:underline hover:decoration-blue-700 hover:text-blue-700 cursor-pointer">Show Filters</p>
+                                  <p className="hide-filters hidden hover:underline hover:decoration-blue-700 hover:text-blue-700 cursor-pointer">Hide Filters</p>
+                      </div>
                 <div>
                     <button
                     className=" bg-yellow-700m text-gray-400 hover:text-white hover:bg-blue-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
@@ -213,6 +238,18 @@ export default function UserReport() {
           {/*FILTERS*/}
           <div className="filter-content hidden bg-gray-200  p-5">
             <div className="bg-white rounded-3xl shadow-lg ">
+            <div className="pl-7 pt-5">
+                <div onClick={()=>{
+                  setFromTime('')
+                  setToTime('')
+                  setLoading(true)
+                }}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 hover:fill-blue-700 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                    <title>Reset Filter</title>
+                  </svg>
+                </div>                  
+              </div>
               <div className=" flex bg-white items-center justify-center w-full p-8 h-32  gap-3 rounded-lg">
                 <div className="w-full mb-2">
                   <p className="text-sm text-indigo-900">From Date</p>
@@ -247,7 +284,7 @@ export default function UserReport() {
                   <button
                     className="flex items-center justify-center rounded-lg  h-10 w-full mt-6 mr-10 bg-blue-400 group-hover:bg-blue-600"
                     onClick={() => {
-                      showMod();
+                      getAgentReport();
                     }}
                   >
                     <p className="text-black text-lg font-semibold group-hover:text-white ">

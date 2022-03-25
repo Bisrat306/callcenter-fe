@@ -220,14 +220,14 @@ export default function Admin() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="green">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M8 7l4-4m0 0l4 4m-4-4v18" />
                                                 </svg>
-                                                <p className="text-sm font-bold text-green-800">{result.previous_month.totalCount===0?"100":(result.previous_month.totalCount/result.month.totalCount).toFixed(2)*100}%</p>
+                                                <p className="text-sm font-bold text-green-800">{result.previous_month.totalCount===0?"100":100-(result.previous_month.totalCount/result.month.totalCount).toFixed(2)*100}%</p>
                                             </div>:
                                             result.month.totalCount<result.previous_year.totalCount?
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="red">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
-                                                <p className="text-sm font-bold text-red-800">{result.previous_month.totalCount===0?"100":(result.month.totalCount/result.previous_month.totalCount).toFixed(2)*100}%</p>
+                                                <p className="text-sm font-bold text-red-800">{result.previous_month.totalCount===0?"100":100-(result.month.totalCount/result.previous_month.totalCount).toFixed(2)*100}%</p>
                                             </div>:
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="black">
@@ -263,7 +263,7 @@ export default function Admin() {
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="red">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
-                                                <p className="text-sm font-bold text-red-800">{result.previous_year.totalCount===0?"100":(result.day.totalCount/result.previous_day.totalCount).toFixed(2)*100}%</p>
+                                                <p className="text-sm font-bold text-red-800">{result.previous_day.totalCount===0?"100":100-(result.day.totalCount/result.previous_day.totalCount).toFixed(2)*100}%</p>
                                             </div>:
                                             <div className="flex flex-row items-end mb-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mb-1" fill="none" viewBox="0 0 24 24" stroke="black">

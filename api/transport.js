@@ -92,18 +92,29 @@ const  Transport = {
                     "authorization" : "Bearer " + token
                 }
         }),
-        getAgentReport: (token,id) =>
+        getAgentReport: (token,id,params) =>
             axios({
-                url: baseUrl + `report/${id}`,
+                url: baseUrl + `report/${id}?page=1&pageSize=20`,
                 method: "GET",
+                params:params,
                 headers: {
                     authorization : "Bearer " + token
                 }
         }),
-        getAgentsReport: (token) =>
+        getAllCallReport: (token,params) =>
             axios({
-                url: baseUrl + `report/counts`,
+                url: baseUrl + `report?page=1&pageSize=20`,
                 method: "GET",
+                params:params,
+                headers: {
+                    authorization : "Bearer " + token
+                }
+        }),
+        getAgentsReport: (token,params) =>
+            axios({
+                url: baseUrl + `report/counts?page=1&pageSize=20`,
+                method: "GET",
+                params,
                 headers: {
                     authorization : "Bearer " + token
                 }
@@ -115,8 +126,16 @@ const  Transport = {
                 headers: {
                     authorization : "Bearer " + token
                 }
+        }),
+        getAllAgents: (token) =>
+            axios({
+                url: baseUrl + `user/all`,
+                method: "GET",
+                headers: {
+                    authorization : "Bearer " + token
+                }
         })
-
+       
         
         }
     }
