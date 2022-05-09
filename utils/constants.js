@@ -17,8 +17,25 @@ export const buttons ={
         icon:"M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
     }
 }
-export const NEED_EXPORT_COLUMNS=[
-    { label: 'Name', key: 'name'},
-    { label: 'Number', key: 'num'}
+export const USER_EXPORT_COLUMNS=[
+    { label: 'Call Receiver', key: 'name'},
+    { label: 'Number of Calls', key: 'count'}
   ];
-  
+
+  export const USER_DETAIL_EXPORT_COLUMNS=[
+    { label: 'Date', key: 'timeOfCall'},
+    { label: 'Gender', key: 'sex'},    
+    { label: 'Caller Status', key: 'callerStatus'},
+    { label: 'Marital Status', key: 'maritalStatus'},    
+    { label: 'Interest to join group', key: 'interestToJoinGroup'},
+    { label: 'Unserviced Call', key: 'unservicedCall'},    
+    { label: 'Location', key: 'location'}
+  ];
+  export const REPORT_DETAIL_EXPORT_COLUMNS=[
+    { label: 'Date', key: 'timeOfCall'},
+    { label: 'Call Receiver', key: 'agentName'},    
+    { label: 'Sex', key: 'sex'},
+    { label: 'Location', key: 'location'},    
+    { label: 'Caller Status', key: 'interestToJoinGroup'}
+    ]
+

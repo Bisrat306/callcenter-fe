@@ -2,7 +2,7 @@ import React, { useState,useEffect } from "react";
 import { useRouter } from "next/router";
 import AdminNav from "../../../components/AdminNav";
 import { CSVLink } from "react-csv";
-import { NEED_EXPORT_COLUMNS } from "../../../utils/constants";
+import { NEED_EXPORT_COLUMNS, USER_DETAIL_EXPORT_COLUMNS } from "../../../utils/constants";
 import ModalImage from "react-modal-image";
 import { format } from "date-fns";
 import Transport from "../../../api/transport";
@@ -21,6 +21,12 @@ export default function UserDetail() {
     const [fromTime,setFromTime]=useState("")
     const [toTime,setToTime]=useState("")
     const [report,setReport]=useState([])
+    const [fullReport,setFullReport]=useState([])
+
+  const [totalItem,setTotalItem]=useState(0)
+  const [maxPage,setMaxPage]=useState(0)
+  const [pageNumber, setPageNumber] = useState(1)
+  const [numberOfItems, setNumberOfItems] = useState(10)
 
     
   const items = [
@@ -41,21 +47,33 @@ export default function UserDetail() {
       if(fromTime!==""&&toTime!==""){
         var params={
           startDate:fromTime,
-          endDate:toTime
+          endDate:toTime,
+          page:pageNumber,
+          pageSize:numberOfItems
         }
       }else if(fromTime!==""&&toTime===""){
         var params={
-          startDate:fromTime
+          startDate:fromTime,
+          page:pageNumber,
+          pageSize:numberOfItems
         }
       }else if(fromTime===""&&toTime!==""){
         var params={
-          startDate:fromTime
+          startDate:fromTime,
+          page:pageNumber,
+          pageSize:numberOfItems
         }
       }else{
-            var params={ }
+            var params={            
+              page:pageNumber,
+              pageSize:numberOfItems
+             }
           }
       Transport.HTTP.getAgentReport(sessionStorage.getItem('token'),router?.query?.id,params).then(res=>{
         setReport(res.data.results.call)
+        setFullReport(res.data.results.all)
+        setTotalItem(res.data.results.totalCount)
+        setMaxPage(Math.ceil(res.data.results.totalCount/10))
       }).catch(err=>{
         console.log(err)
       })
@@ -261,9 +279,9 @@ export default function UserDetail() {
                     type="button"
                     >
                     <CSVLink
-                        data={items}
-                        headers={NEED_EXPORT_COLUMNS}
-                        filename={"trial".concat("_report.csv")}
+                        data={fullReport}
+                        headers={USER_DETAIL_EXPORT_COLUMNS}
+                        filename={process.browser&&sessionStorage.getItem("name").concat("_report.csv")}
                         target="_blank"
                     >
                         Download Full Report
@@ -274,9 +292,9 @@ export default function UserDetail() {
                     type="button"
                     >
                     <CSVLink
-                        data={items}
-                        headers={NEED_EXPORT_COLUMNS}
-                        filename={"trial".concat("_report.csv")}
+                        data={report}
+                        headers={USER_DETAIL_EXPORT_COLUMNS}
+                        filename={process.browser&&sessionStorage.getItem("name").concat("_report.csv")}
                         target="_blank"
                     >
                         Download Filtered Report
@@ -399,6 +417,48 @@ export default function UserDetail() {
                           </tr>)})}
                         </tbody>
                       </table>}
+                      <nav aria-label="Page navigation" className="mb-5 mt-3">
+                                    <ul className="inline-flex">
+                                        {
+                                            pageNumber>1?
+                                            <li>
+                                                <button className="h-10 px-5 text-gray-600 transition-colors duration-150 bg-white rounded-l-lg focus:shadow-outline hover:bg-gray-100" 
+                                                disabled={pageNumber==1}
+                                                onClick={()=>{setPageNumber(pageNumber-1);setLoading(true)}}>
+                                                Prev
+                                                </button>
+                                            </li>
+                                            :
+                                            <li>
+                                                <button className="h-10 px-5 text-gray-200 transition-colors duration-150 bg-gray-100 rounded-l-lg focus:shadow-outline " 
+                                                disabled={pageNumber==1}
+                                                onClick={()=>{setPageNumber(pageNumber-1);setLoading(true)}}>
+                                                Prev
+                                                </button>
+                                            </li>
+                        
+                                        }
+                                        <li className="mt-2"><span button className="h-10 px-5 text-l text-gray-600 transition-colors duration-150 bg-white">Page{' '} <strong>{pageNumber} of {maxPage}</strong></span></li>
+                                        {
+                                            pageNumber<maxPage?
+                                            <li>
+                                                <button className="h-10 px-5 text-gray-600 transition-colors duration-150 bg-white rounded-l-lg focus:shadow-outline hover:bg-gray-100" 
+                                                disabled={pageNumber==maxPage}
+                                                onClick={()=>{setPageNumber(pageNumber+1);setLoading(true)}}>
+                                                Next
+                                                </button>
+                                            </li>
+                                            :
+                                            <li>
+                                                <button className="h-10 px-5 text-gray-200 transition-colors duration-150 bg-gray-100 rounded-l-lg focus:shadow-outline " 
+                                                disabled={pageNumber==maxPage}>
+                                                Next
+                                                </button>
+                                            </li>
+                        
+                                        }
+                                    </ul>
+                      </nav>
                     </div>}
                   </div>
                 </div>

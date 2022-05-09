@@ -94,7 +94,7 @@ const  Transport = {
         }),
         getAgentReport: (token,id,params) =>
             axios({
-                url: baseUrl + `report/${id}?page=1&pageSize=20`,
+                url: baseUrl + `report/${id}`,
                 method: "GET",
                 params:params,
                 headers: {
@@ -103,7 +103,16 @@ const  Transport = {
         }),
         getAllCallReport: (token,params) =>
             axios({
-                url: baseUrl + `report?page=1&pageSize=20`,
+                url: baseUrl + `report`,
+                method: "GET",
+                params:params,
+                headers: {
+                    authorization : "Bearer " + token
+                }
+        }),
+        getFullCallReport: (token,params) =>
+            axios({
+                url: baseUrl + `report/full`,
                 method: "GET",
                 params:params,
                 headers: {
@@ -112,7 +121,7 @@ const  Transport = {
         }),
         getAgentsReport: (token,params) =>
             axios({
-                url: baseUrl + `report/counts?page=1&pageSize=20`,
+                url: baseUrl + `report/counts?page=1&pageSize=100`,
                 method: "GET",
                 params,
                 headers: {
